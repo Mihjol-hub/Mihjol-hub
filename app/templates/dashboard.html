@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Welcome, {{ user.username if user else 'User' }}!</h1>
+
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <form action="{{ url_for('main.search') }}" method="GET" class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search groups, users, or posts" aria-label="Search" name="q">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Profile and Create Group/Post Sections -->
+                <div class="mb-3">
+                    <a href="{{ url_for('main.profile') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-circle me-2"></i>View Profile
+                    </a>
+                    <a href="{{ url_for('main.create_group') }}" class="btn btn-outline-primary ms-2">
+                        <i class="fas fa-users me-2"></i>Create Group
+                    </a>
+                </div>
+
+                <!-- Create Post Form -->
+                <h5 class="card-title">Create a New Post</h5>
+                <form action="{{ url_for('main.create_post') }}" method="POST">
+                    <div class="form-group">
+                        <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Post</button>
+                </form>
+
+                <!-- Posts Feed -->
+                <h2 class="mt-4">Your Feed</h2>
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between">
+                            <h5 class="card-title mb-0">
+                                {{ post.author.username if post.author else "Unknown User" }}
+                            </h5>
+                            <small class="text-muted">{{ post.created_at.strftime('%Y-%m-%d %H:%M') if post.created_at else "Unknown date" }}</small>
+                        </div>
+                        <div class="card-body">
+                            {% if post.post_title %}
+                                <h6 class="card-subtitle mb-2 text-muted">{{ post.post_title }}</h6>
+                            {% endif %}
+                            <p class="card-text">{{ post.content }}</p>
+                            {% if post.group %}
+                                <p class="card-text"><small class="text-muted">
+                                    <i class="fas fa-users me-1"></i>Posted in {{ post.group.name }}
+                                </small></p>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <!-- Reaction buttons -->
+                                    {% for reaction_type, emoji in [('like', '👍'), ('love', '❤️'), ('dislike', '👎'), ('haha', '😄'), ('wow', '😮'), ('sad', '😢'), ('angry', '😡')] %}
+                                        <button type="button" class="btn btn-sm btn-outline-primary reaction-btn" data-post-id="{{ post.id }}" data-reaction-type="{{ reaction_type }}">
+                                            {{ emoji }} <span class="reaction-count">{{ post.reactions|selectattr("reaction_type", "equalto", reaction_type)|list|length }}</span>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                                {% if post.author_id == user.id %}
+                                <div>
+                                    <a href="{{ url_for('main.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <a href="{{ url_for('main.delete_post', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Pagination -->
+                    {% if pagination %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% for page in pagination.iter_pages() %}
+                                {% if page %}
+                                    {% if page != pagination.page %}
+                                        <li class="page-item"><a class="page-link" href="{{ url_for('main.dashboard', page=page) }}">{{ page }}</a></li>
+                                    {% else %}
+                                        <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">No posts available in your feed.</p>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar: Friend Recommendations, Friends, Groups, Notifications -->
+            <div class="col-md-4">
+                {% include 'dashboard_sidebar.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle reaction buttons
+    $('.reaction-btn').click(function() {
+        var postId = $(this).data('post-id');
+        var reactionType = $(this).data('reaction-type');
+        var button = $(this);
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: '/react/' + postId,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({reaction_type: reactionType}),
+            headers: {
+                'X-CSRF-Token': csrfToken
+            },
+            success: function(response) {
+                var countSpan = button.find('.reaction-count');
+                countSpan.text(response.reactions);
+
+                if (response.status === 'added' || response.status === 'changed') {
+                    button.siblings().removeClass('active');
+                    button.addClass('active');
+                } else if (response.status === 'removed') {
+                    button.removeClass('active');
+                }
+            }
+        });
+    });
+
+    // Toggle comment section
+    $('.comment-btn').click(function() {
+        var postId = $(this).data('post-id');
+        $('#comment-section-' + postId).toggle();
+    });
+
+    // Handle comment submission
+    $('.comment-form').submit(function(e) {
+        e.preventDefault();
+        var postId = $(this).data('post-id');
+        var content = $(this).find('textarea').val();
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        var form = $(this);
+        $.ajax({
+            url: '/comment/' + postId,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({content: content}),
+            headers: {
+                'X-CSRF-Token': csrfToken
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    var newComment = '<div class="comment"><strong>' + response.comment.user_id + '</strong>: ' + response.comment.content + '</div>';
+                    form.siblings('.comments-list').append(newComment);
+                    form.find('textarea').val('');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

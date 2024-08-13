@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Home - LinkenDinCUI{% endblock %}
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded-3">
+    <h1 class="display-4">Welcome to LinkenDinCUI</h1>
+    <p class="lead">Connect with professionals, share ideas, and grow your network.</p>
+    <hr class="my-4">
+    <p>Join our community today and start building meaningful connections!</p>
+    {% if not current_user %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('main.signup') }}" role="button">
+        <i class="fas fa-user-plus me-2"></i>Sign Up
+    </a>
+    {% else %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('main.dashboard') }}" role="button">
+        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

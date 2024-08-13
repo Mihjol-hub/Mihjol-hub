@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }}'s Profile - LinkenDinCUI{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="{{ user.username }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;">
+                    <h3>{{ user.username }}</h3>
+                    <p class="text-muted">{{ user.workrole }}</p>
+                    <p><i class="fas fa-building me-2"></i>{{ user.entreprise }}</p>
+                    <p><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+                    <p><i class="fas fa-calendar me-2"></i>Joined {{ user.created_at|format_date }}</p>
+                    {% if is_own_profile %}
+                        <button class="btn btn-primary" id="edit-profile-btn"><i class="fas fa-edit me-2"></i>Edit Profile</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% if is_own_profile %}
+                <div class="card mb-4" id="edit-profile-form" style="display: none;">
+                    <div class="card-body">
+                        <h5 class="card-title">Edit Profile</h5>
+                        <form method="POST">
+                            {{ form.csrf_token }}
+                            <div class="mb-3">
+                                <label for="workrole" class="form-label">Work Role</label>
+                                <input type="text" class="form-control" id="workrole" name="workrole" value="{{ user.workrole }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="entreprise" class="form-label">Company</label>
+                                <input type="text" class="form-control" id="entreprise" name="entreprise" value="{{ user.entreprise }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="biography" class="form-label">Biography</label>
+                                <textarea class="form-control" id="biography" name="biography" rows="3">{{ user.biography }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="birthday" class="form-label">Birthday</label>
+                                <input type="date" class="form-control" id="birthday" name="birthday" value="{{ user.birthday.strftime('%Y-%m-%d') if user.birthday else '' }}">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">About Me</h5>
+                    <p>{{ user.biography }}</p>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Posts</h5>
+                    {% for post in user_posts %}
+                        <div class="mb-3">
+                            <p>{{ post.content }}</p>
+                            <small class="text-muted">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                    {% else %}
+                        <p class="text-muted">No posts yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Connections</h5>
+                    <div class="row">
+                        {% for friend in user_friends %}
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center">
+                                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="{{ friend.username }}" class="rounded-circle img-fluid mb-2" style="width: 64px; height: 64px;">
+                                    <p><a href="{{ url_for('main.profile', username=friend.username) }}">{{ friend.username }}</a></p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No connections yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        $('#edit-profile-btn').click(function() {
+            $('#edit-profile-form').toggle();
+        });
+    });
+</script>
+{% endblock %}

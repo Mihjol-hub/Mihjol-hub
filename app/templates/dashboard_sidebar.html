@@ -1,0 +1,66 @@
+<!-- dashboard_sidebar.html -->
+<div class="sidebar">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Friend Recommendations</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for friend in friend_recommendations %}
+                <li class="list-group-item">{{ friend.username }}</li>
+            {% else %}
+                <li class="list-group-item">No recommendations at the moment.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Your Groups</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for group in user_groups %}
+                <li class="list-group-item">{{ group.name }}</li>
+            {% else %}
+                <li class="list-group-item">You're not in any groups yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Pending Friend Requests</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for request in pending_requests %}
+                <li class="list-group-item">{{ request.user.username }}</li>
+            {% else %}
+                <li class="list-group-item">No pending requests.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Notifications</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for notification in notifications %}
+                <li class="list-group-item">{{ notification.content }}</li>
+            {% else %}
+                <li class="list-group-item">No new notifications.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Group Recommendations</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for group, similarity in group_recommendations %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ group.name }}
+                    <span class="badge bg-primary rounded-pill">Similarity: {{ "%.2f"|format(similarity) }}</span>
+                </li>
+            {% else %}
+                <li class="list-group-item">No group recommendations at the moment.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

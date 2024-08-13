@@ -1,0 +1,25 @@
+/* Custom styles to complement Bootstrap */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.create-post textarea {
+    resize: vertical;
+}
+
+/* You can add more custom styles here as needed */

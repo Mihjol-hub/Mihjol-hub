@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Panel</h1>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Summary Statistics</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Total Users: {{ total_users }}</li>
+                        <li class="list-group-item">Total Posts: {{ total_posts }}</li>
+                        <li class="list-group-item">Total Groups: {{ total_groups }}</li>
+                        <li class="list-group-item">Total Comments: {{ total_comments }}</li>
+                        <li class="list-group-item">Total Reactions: {{ total_reactions }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Users</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for user in recent_users %}
+                        <li class="list-group-item">
+                            {{ user.username }} ({{ user.email }}) - Joined: {{ user.created_at.strftime('%Y-%m-%d') }}
+                            <form action="{{ url_for('main.admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Posts</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for post in recent_posts %}
+                        <li class="list-group-item">
+                            {{ post.post_title }} by {{ post.author.username }} - Created: {{ post.created_at.strftime('%Y-%m-%d') }}
+                            <form action="{{ url_for('main.admin_delete_post', post_id=post.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Groups</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for group in recent_groups %}
+                        <li class="list-group-item">
+                            {{ group.name }} - Created: {{ group.created_at.strftime('%Y-%m-%d') }}
+                            <form action="{{ url_for('main.admin_delete_group', group_id=group.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

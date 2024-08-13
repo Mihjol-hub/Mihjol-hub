@@ -1,0 +1,21 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+   - docker build -t linken-din-cui .
+
+test:
+  stage: test
+  script:
+   - docker run linken-din-cui pytest tests/
+
+deploy:
+  stage: deploy
+  script:
+   - echo "Deploy stage would go here."
+  only:
+   - main  

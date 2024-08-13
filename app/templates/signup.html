@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Sign Up - LinkenDinCUI{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Sign Up</h2>
+    <form method="POST" action="{{ url_for('main.signup') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.confirm_password.label(class="form-label") }}
+            {{ form.confirm_password(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.workrole.label(class="form-label") }}
+            {{ form.workrole(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.entreprise.label(class="form-label") }}
+            {{ form.entreprise(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.biography.label(class="form-label") }}
+            {{ form.biography(class="form-control", rows=3) }}
+        </div>
+        <div class="form-group">
+            {{ form.birthday.label(class="form-label") }}
+            {{ form.birthday(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}
