@@ -174,6 +174,7 @@ def notify_users_for_new_group(group):
 
     db.session.commit()
 
+
 # Function to create notifications for new posts
 def notify_users_for_new_post(post):
     post_keywords = tokenize(post.content)

@@ -1,5 +1,4 @@
 #app/auth.py
-#app/auth.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_jwt_extended import get_jwt, jwt_required, create_access_token, unset_jwt_cookies, get_jwt_identity
 from app.models import TokenBlocklist
